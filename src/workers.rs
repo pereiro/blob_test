@@ -32,15 +32,18 @@ impl Worker {
 
             archive.entries().unwrap().for_each(|x|{
                 let mut str: String = "".to_string();
-                x.unwrap().read_to_string(&mut str);
-                match serde_json::from_str::<Value>(str.as_str()){
-                    Ok(l) => {
-                        counter += 1;
-                    }
-                    Err(e) => {
-
-                    }
+                match x.unwrap().read_to_string(&mut str){
+                    Ok(x) => { counter += 1}
+                    Err(_) => {}
                 }
+                // match serde_json::from_str::<Value>(str.as_str()){
+                //     Ok(l) => {
+                //         counter += 1;
+                //     }
+                //     Err(e) => {
+                //
+                //     }
+                // }
             });
             self.ctx.result_sender.send(counter).await.unwrap();
         }
