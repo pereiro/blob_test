@@ -2,13 +2,8 @@ mod context;
 mod workers;
 
 use std::{fs, io};
-use std::io::Read;
-use std::path::PathBuf;
 use std::time::Instant;
-use async_std::channel::RecvError;
 use async_std::task;
-use tar::Archive;
-use serde_json::{Result,Value};
 use clap::Parser;
 use crate::context::Context;
 use crate::workers::Worker;
@@ -26,7 +21,7 @@ struct Args {
 #[async_std::main]
 async fn main() -> io::Result<()> {
     let args: Args = Args::parse();
-    let mut start = Instant::now();
+    let start = Instant::now();
     let ctx = Context::new();
     let mut file_count = 0;
     let mut record_count = 0;

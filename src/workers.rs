@@ -1,7 +1,6 @@
 use std::fs::File;
 use std::io::Read;
 use flate2::read::ZlibDecoder;
-use serde_json::Value;
 use tar::Archive;
 use super::context::Context;
 
@@ -33,7 +32,7 @@ impl Worker {
             archive.entries().unwrap().for_each(|x|{
                 let mut str: String = "".to_string();
                 match x.unwrap().read_to_string(&mut str){
-                    Ok(x) => { counter += 1}
+                    Ok(_) => { counter += 1}
                     Err(_) => {}
                 }
                 // match serde_json::from_str::<Value>(str.as_str()){

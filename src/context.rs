@@ -1,5 +1,4 @@
-use std::path::PathBuf;
-use async_std::channel::{bounded, unbounded};
+use async_std::channel::{unbounded};
 use async_std::channel::{Receiver, Sender};
 
 #[derive(Clone)]
