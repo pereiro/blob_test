@@ -26,8 +26,8 @@ impl Worker {
                     continue
                 }
             };
-            let tar = GzDecoder::new(tar_gz);
-            let mut archive = Archive::new(tar);
+            //let tar = GzDecoder::new(tar_gz);
+            //let mut archive = Archive::new(tar_gz);
             let mut counter = 0u64;
 
             archive.entries().unwrap().for_each(|x|{
