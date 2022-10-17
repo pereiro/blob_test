@@ -1,6 +1,6 @@
 use std::fs::File;
 use std::io::Read;
-use flate2::read::GzDecoder;
+use flate2::read::ZlibDecoder;
 use serde_json::Value;
 use tar::Archive;
 use super::context::Context;
@@ -26,7 +26,7 @@ impl Worker {
                     continue
                 }
             };
-            let tar = GzDecoder::new(tar_gz);
+            let tar = ZlibDecoder::new(tar_gz);
             let mut archive = Archive::new(tar);
             let mut counter = 0u64;
 
