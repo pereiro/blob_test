@@ -15,7 +15,10 @@ struct Args {
     paths: Vec<String>,
     ///Number of workers
     #[arg(short, long)]
-    workers: usize
+    workers: usize,
+    ///Use raw blobs instead of tarballs
+    #[arg(short, long,default_value_t = true)]
+    blob: bool,
 }
 
 #[async_std::main]
@@ -40,9 +43,16 @@ async fn main() -> io::Result<()> {
 
     for _ in 0..args.workers{
         let worker = Worker::new(ctx.clone());
-        task::spawn(async move {
-            worker.start().await
-        });
+        if args.blob{
+            task::spawn(async move {
+                worker.process_blobs().await
+            });
+        }else{
+            task::spawn(async move {
+                worker.process_archives().await
+            });
+        }
+
     }
 
     loop{
