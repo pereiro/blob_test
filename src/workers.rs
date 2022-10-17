@@ -31,7 +31,6 @@ impl Worker {
                 match line{
                     Ok(l) => {
                         counter += 1;
-                        println!("{}",l)
                     }
                     Err(e) => { println!("{}",e)}
                 }
