@@ -29,6 +29,7 @@ async fn main() -> io::Result<()> {
     let ctx = Context::new();
     let mut file_count = 0;
     let mut record_count = 0;
+    let mut odd_count = 0;
     let mut paths = Vec::new();
     for path in args.paths{
         let list = match fs::read_dir(path) {
@@ -64,7 +65,8 @@ async fn main() -> io::Result<()> {
 
     loop{
         let result = ctx.result_receiver.recv().await.unwrap();
-        record_count += result;
+        record_count += result.records_count;
+        odd_count += result.odd_count;
         file_count -= 1;
         if file_count <= 0 {
             break
@@ -73,6 +75,9 @@ async fn main() -> io::Result<()> {
 
     println!("{} records processed in {}s. {:.0} records/s",record_count,start.elapsed().as_secs(),
              (record_count*1000000) as f64/start.elapsed().as_micros() as f64);
+    println!("RESULT:");
+    println!("odd count = {}",odd_count);
+    println!("even count = {}",record_count - odd_count);
 
     Ok(())
 }

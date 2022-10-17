@@ -1,9 +1,11 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader, Read};
+use std::num::ParseIntError;
 use flate2::read::ZlibDecoder;
 use tar::Archive;
 use super::context::Context;
 use serde_json::Value;
+use crate::context::Aggregate;
 
 pub struct Worker{
     ctx: Context
@@ -26,14 +28,13 @@ impl Worker {
                     continue
                 }
             };
-            let mut counter = 0u64;
+            let mut result = Aggregate::new();
             let mut reader = BufReader::new(file);
             for line in reader.lines(){
                 let str;
                 match line{
                     Ok(l) => {
                         str = l;
-                        counter += 1;
                     }
                     Err(e) => {
                         println!("{}",e);
@@ -42,8 +43,14 @@ impl Worker {
                 }
                 match serde_json::from_str::<Value>(str.as_str()){
                     Ok(l) => {
-                        //println!("{}",l["user_id"]);
-                        counter += 1;
+                        let id = match l["ts"].as_u64() {
+                            None => { continue }
+                            Some(id) => {id}
+                        };
+                        result.records_count += 1;
+                        if id%2 != 0 {
+                            result.odd_count += 1;
+                        }
                     }
                     Err(e) => {
 
@@ -52,7 +59,7 @@ impl Worker {
             }
 
 
-            self.ctx.result_sender.send(counter).await.unwrap();
+            self.ctx.result_sender.send(result).await.unwrap();
         }
     }
     pub async fn process_archives(self) {
@@ -85,7 +92,10 @@ impl Worker {
                 //     }
                 // }
             });
-            self.ctx.result_sender.send(counter).await.unwrap();
+            self.ctx.result_sender.send(Aggregate{
+                records_count: counter,
+                odd_count: counter
+            }).await.unwrap();
         }
     }
 }
