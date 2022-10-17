@@ -7,6 +7,7 @@ use async_std::task;
 use clap::Parser;
 use crate::context::Context;
 use crate::workers::Worker;
+use rand::seq::SliceRandom;
 
 #[derive(Parser)]
 struct Args {
@@ -28,6 +29,7 @@ async fn main() -> io::Result<()> {
     let ctx = Context::new();
     let mut file_count = 0;
     let mut record_count = 0;
+    let mut paths = Vec::new();
     for path in args.paths{
         let list = match fs::read_dir(path) {
             Ok(l) => {l}
@@ -36,10 +38,15 @@ async fn main() -> io::Result<()> {
         for file in list{
             file_count += 1;
             let file = file.unwrap().path().to_str().unwrap().to_string();
-            println!("{}",file);
-            ctx.path_sender.send(file).await.unwrap();
+            paths.push(file);
         }
     }
+    let random_paths:Vec<String> = paths.choose_multiple(&mut rand::thread_rng(),paths.len()).cloned().collect();
+    for path in random_paths{
+        println!("{}",path);
+        ctx.path_sender.send(path).await.unwrap();
+    }
+
 
     for _ in 0..args.workers{
         let worker = Worker::new(ctx.clone());
