@@ -3,6 +3,7 @@ use std::io::{BufRead, BufReader, Read};
 use flate2::read::ZlibDecoder;
 use tar::Archive;
 use super::context::Context;
+use serde_json::Value;
 
 pub struct Worker{
     ctx: Context
@@ -28,20 +29,26 @@ impl Worker {
             let mut counter = 0u64;
             let mut reader = BufReader::new(file);
             for line in reader.lines(){
+                let str;
                 match line{
                     Ok(l) => {
+                        str = l;
                         counter += 1;
                     }
-                    Err(e) => { println!("{}",e)}
+                    Err(e) => {
+                        println!("{}",e);
+                        continue;
+                    }
                 }
-                // match serde_json::from_str::<Value>(str.as_str()){
-                //     Ok(l) => {
-                //         counter += 1;
-                //     }
-                //     Err(e) => {
-                //
-                //     }
-                // }
+                match serde_json::from_str::<Value>(str.as_str()){
+                    Ok(l) => {
+                        //println!("{}",l["user_id"]);
+                        counter += 1;
+                    }
+                    Err(e) => {
+
+                    }
+                }
             }
 
 
